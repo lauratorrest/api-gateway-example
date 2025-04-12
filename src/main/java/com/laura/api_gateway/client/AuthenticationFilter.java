@@ -16,14 +16,14 @@ import java.util.Map;
 @Component
 public class AuthenticationFilter implements GlobalFilter, Ordered {
 
-    public static final String AUTH_BASE_URL = "http://localhost:8081";
-    public static final String AUTHORIZATION = "Authorization";
-    public static final String BEARER = "Bearer ";
-    public static final String AUTH_VALIDATE_TOKEN_URI = "/auth/validate-token";
-    public static final String X_USER_EMAIL = "X-User-Email";
+    private static final String AUTH_BASE_URL = "http://localhost:8081";
+    private static final String AUTHORIZATION = "Authorization";
+    private static final String BEARER = "Bearer ";
+    private static final String AUTH_VALIDATE_TOKEN_URI = "/auth/validate-token";
+    private static final String X_USER_EMAIL = "X-User-Email";
     private final WebClient webClient;
 
-    public AuthenticationFilter(WebClient.Builder webClientBuilder){
+    public AuthenticationFilter(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.baseUrl(AUTH_BASE_URL).build();
     }
 
@@ -33,7 +33,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         HttpHeaders headers = exchange.getRequest().getHeaders();
         String token = headers.getFirst(AUTHORIZATION);
 
-        if(token == null || token.isEmpty()){
+        if (token == null || token.isEmpty()) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
@@ -45,7 +45,8 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                 .header(HttpHeaders.AUTHORIZATION, cleanToken)
                 .header(X_USER_EMAIL, headers.getFirst(X_USER_EMAIL))
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<Map<String, Boolean>>() {})
+                .bodyToMono(new ParameterizedTypeReference<Map<String, Boolean>>() {
+                })
                 .flatMap(response -> {
                     Boolean valid = response.get("valid");
                     if (Boolean.TRUE.equals(valid)) {
